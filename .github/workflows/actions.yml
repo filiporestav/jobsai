@@ -10,6 +10,9 @@ jobs:
   run-python-script:
     runs-on: ubuntu-latest
 
+    env: # Define environment variables for the entire job
+      PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
     steps:
       # Step 1: Check out the code
       - name: Check out repository
