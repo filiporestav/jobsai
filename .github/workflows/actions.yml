@@ -27,6 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set timezone
+        uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: "Europe/Stockholm"
+
       - name: Run update script
         env:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}

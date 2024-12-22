@@ -156,7 +156,7 @@ def main():
             last_update_dt = datetime.strptime(last_update, DATE_FORMAT)
             st.markdown("### Database Status")
             st.markdown("🔄 Updates every 6 hours")
-            st.markdown(f"**Last update:**{last_update_dt.strftime('%B %d, %Y at %I:%M %p')}")
+            st.markdown(f"**Last update:**{last_update_dt.strftime('%B %d, %Y at %I:%M %p')} (Stockholm Time)")
         except Exception as e:
             st.error(f"Error reading timestamp: {str(e)}")
     
