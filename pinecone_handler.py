@@ -4,12 +4,18 @@ import logging
 from pinecone import Pinecone, ServerlessSpec
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+if not PINECONE_API_KEY:
+    raise ValueError("PINECONE_API_KEY is not set. Please check your environment or secrets configuration.")
 
 from settings import (
     LOG_LEVEL, 
     LOG_DATE_FORMAT, 
     LOG_FORMAT, 
-    PINECONE_API_KEY,
     PINECONE_ENVIRONMENT,
     PINECONE_INDEX_NAME
 )

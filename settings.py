@@ -1,6 +1,5 @@
 import logging
 
-PINECONE_API_KEY = "pcsk_3nKkDX_K2CLsXYCkmJwP2gkv2HtCEe3ksJ7J3uQgx9ajAG63BFezrQUC5jFZVjadte4Sh8"
 PINECONE_ENVIRONMENT = "gcp-starter"
 PINECONE_INDEX_NAME = "jobads-index"
 
