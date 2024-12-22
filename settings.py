@@ -11,8 +11,8 @@ BASE_URL = 'https://jobstream.api.jobtechdev.se'
 STREAM_URL = f"{BASE_URL}/stream"
 SNAPSHOT_URL = f"{BASE_URL}/snapshot"
 
-SLEEP_TIME_MINUTES = 0.1
-MAX_UPDATES = 4
+SLEEP_TIME_MINUTES = 5
+MAX_UPDATES = 50
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 

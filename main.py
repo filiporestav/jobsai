@@ -26,14 +26,15 @@ def keep_updated():
             log.info(f"No ads found after timestamp '{last_timestamp}'")
 
         write_timestamp(new_timestamp)
-        counter += 1
-        log.info(f"Completed update {counter} of {MAX_UPDATES}")
+        break
+        #counter += 1
+        #log.info(f"Completed update {counter} of {MAX_UPDATES}")
         
-        if counter == MAX_UPDATES:
-            break
+        #if counter == MAX_UPDATES:
+        #    break
             
-        log.info(f"Waiting {SLEEP_TIME_MINUTES} minutes before collecting ads again")
-        sleep(SLEEP_TIME_MINUTES * 60)
+        #log.info(f"Waiting {SLEEP_TIME_MINUTES} minutes before collecting ads again")
+        #sleep(SLEEP_TIME_MINUTES * 60)
 
     log.info('Finished')
 
