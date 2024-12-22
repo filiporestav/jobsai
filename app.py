@@ -7,6 +7,8 @@ import re
 from pinecone_handler import PineconeHandler
 from time_handling import read_timestamp
 from datetime import datetime
+import os
+from settings import DATE_FORMAT
 
 def extract_text_from_pdf(pdf_file) -> str:
     """Extract text content from PDF file"""
@@ -103,17 +105,60 @@ def format_job_description(description: str, truncated: bool = False) -> str:
 
 
 def main():
-    st.title("Resume-Based Job Search")
-
-    # Add last update time display
-    try:
-        last_update = read_timestamp()
-        last_update_dt = datetime.strptime(last_update, "%Y-%m-%d %H:%M:%S")
-        st.markdown(f"*Last database update: {last_update_dt.strftime('%B %d, %Y at %I:%M %p')}*")
-    except Exception as e:
-        st.warning("Unable to retrieve last update time")
-
-    st.write("Upload your resume to find matching job opportunities")
+    # Add custom CSS
+    st.markdown("""
+        <style>
+        .big-font {
+            font-size: 24px !important;
+            font-weight: bold;
+            color: #1E3A8A;
+        }
+        .update-info {
+            padding: 10px;
+            background-color: #F3F4F6;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #4B5563;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #E5E7EB;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Main content
+    st.markdown('<p class="big-font">AI-Powered Job Search</p>', unsafe_allow_html=True)
+    st.markdown("""
+        💼 **Transform Your Job Search with AI**
+        
+        Tired of searching for jobs? Let AI do the work for you! Upload your resume and discover 
+        perfectly matched opportunities in minutes - not hours!
+    """)
+    
+    # Sidebar content
+    with st.sidebar:
+        st.markdown("### How It Works")
+        st.markdown("1. **Upload Resume**\n   PDF, DOCX, DOC, or TXT formats")
+        st.markdown("2. **Extract Content**\n   AI processes your resume")
+        st.markdown("3. **Smart Search**\n   Match against our database")
+        st.markdown("4. **Get Matches**\n   View personalized recommendations")
+        
+        st.markdown("---")  # Divider
+        
+        # Database update info
+        try:
+            last_update = read_timestamp()
+            last_update_dt = datetime.strptime(last_update, DATE_FORMAT)
+            st.markdown("### Database Status")
+            st.markdown("🔄 Updates every 6 hours")
+            st.markdown(f"**Last update:**{last_update_dt.strftime('%B %d, %Y at %I:%M %p')}")
+        except Exception as e:
+            st.error(f"Error reading timestamp: {str(e)}")
     
     # Initialize PineconeHandler
     try:
@@ -159,15 +204,14 @@ def main():
                                         with col1:
                                             st.markdown(f"### {metadata['headline']}")
                                         with col2:
-                                            st.markdown(f"**Match Score:** {score:.2f}")
+                                            st.markdown(f"**Match Score (Cosine):** {score:.2f}")
                                         
                                         # Job details section
-                                        st.markdown(f"**Company:** {metadata.get('company', 'Not specified')}")
+                                        if metadata.get('logo_url'):
+                                            st.image(metadata['logo_url'], width=100)
                                         st.markdown(f"**Location:** {metadata['city']}")
                                         st.markdown(f"**Occupation:** {metadata['occupation']}")
                                         st.markdown(f"**Published:** {metadata['published']}")
-                                        if metadata.get('logo_url'):
-                                            st.image(metadata['logo_url'], width=100)
                                         
                                         # Check if description is truncated
                                         description = metadata['description']
@@ -186,16 +230,11 @@ def main():
                                                 # Try to fetch full description from webpage_url
                                                 st.markdown("""
                                                     **Note:** The full description has been truncated in our database. 
-                                                    Please visit the original job posting for complete details.
+                                                    Please visit the original job posting for complete details and for searching the job.
                                                 """)
                                                 if metadata.get('webpage_url'):
                                                     st.markdown(f"[View Original Job Posting]({metadata['webpage_url']})")
                                         
-                                        # Application section
-                                        st.markdown("### How to Apply")
-                                        if metadata.get('webpage_url'):
-                                            st.markdown(f"[Apply Online]({metadata['webpage_url']})")
-                                        if metadata.get('email'):
                                             st.markdown(f"📧 Contact: {metadata['email']}")
                                         
                                         st.markdown("---")
