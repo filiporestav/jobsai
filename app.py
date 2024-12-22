@@ -6,6 +6,7 @@ from typing import Optional
 import re
 from pinecone_handler import PineconeHandler
 from time_handling import read_timestamp
+from datetime import datetime
 
 def extract_text_from_pdf(pdf_file) -> str:
     """Extract text content from PDF file"""
@@ -103,6 +104,15 @@ def format_job_description(description: str, truncated: bool = False) -> str:
 
 def main():
     st.title("Resume-Based Job Search")
+
+    # Add last update time display
+    try:
+        last_update = read_timestamp()
+        last_update_dt = datetime.strptime(last_update, "%Y-%m-%d %H:%M:%S")
+        st.markdown(f"*Last database update: {last_update_dt.strftime('%B %d, %Y at %I:%M %p')}*")
+    except Exception as e:
+        st.warning("Unable to retrieve last update time")
+
     st.write("Upload your resume to find matching job opportunities")
     
     # Initialize PineconeHandler

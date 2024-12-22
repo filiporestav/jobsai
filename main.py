@@ -14,7 +14,6 @@ logging.basicConfig(stream=sys.stdout, level=LOG_LEVEL, format=LOG_FORMAT, datef
 def keep_updated():
     handler = PineconeHandler()
     last_timestamp = read_timestamp()
-    counter = 0
     
     while True:
         new_timestamp = timestamp_now()
@@ -27,14 +26,6 @@ def keep_updated():
 
         write_timestamp(new_timestamp)
         break
-        #counter += 1
-        #log.info(f"Completed update {counter} of {MAX_UPDATES}")
-        
-        #if counter == MAX_UPDATES:
-        #    break
-            
-        #log.info(f"Waiting {SLEEP_TIME_MINUTES} minutes before collecting ads again")
-        #sleep(SLEEP_TIME_MINUTES * 60)
 
     log.info('Finished')
 
