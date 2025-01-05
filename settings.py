@@ -1,7 +1,8 @@
 import logging
 
 PINECONE_ENVIRONMENT = "gcp-starter"
-PINECONE_INDEX_NAME = "jobads-index"
+#PINECONE_INDEX_NAME = "jobads-index"
+PINECONE_INDEX_NAME = "jobsai-multilingual-small"
 
 DB_TABLE_NAME = 'jobads'
 DB_FILE_NAME = 'jobads_database_20220127.db'
