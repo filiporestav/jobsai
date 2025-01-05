@@ -60,6 +60,6 @@ Querying from the Pinecone vector database is simple and fast thanks to the Pine
 ## Potential improvements
 
 1. The [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) truncates input text longer than 256 word pieces. To capture all the semantics from job listings, we probably need a sentence transformer which can embed longer inputs texts.
-2. The [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) is not optimized for multilingual text. Many people in Sweden have their resumes in Sweden, so better performance would probably achieved with a multilingual model.
+2. The [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) is not optimized for multilingual text. Many people in Sweden have their resumes in Swedish, so better performance would probably achieved with a multilingual model.
 3. We currently truncate the job descriptions after 1000 characters. To capture the full context, we should not truncate the job descriptions from the listings. This requires more data storage but would give better performance.
 4. Users should be able to filter on municipality or location, because the current app ignores where the person wants to work (often not explicitly mentioned in their resume), making many job listings not relevant anyway.
