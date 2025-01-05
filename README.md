@@ -1,6 +1,6 @@
 # AI-Powered Swedish Job Matching Platform
 
-This repository is the final project for the course ID2223 Scalable Machine Learning at KTH.
+This repository is the final project for the course ID2223 Scalable Machine Learning and Deep Learning at KTH.
 
 The final product can be seen by pressing the link below, and is hosted on Streamlit Community Cloud.
 
