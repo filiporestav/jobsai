@@ -6,6 +6,7 @@ from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
 import os
 from dotenv import load_dotenv
+from typing import List, Dict, Any, Optional
 
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -177,13 +178,23 @@ class PineconeHandler:
         except Exception as e:
             log.error(f"Error deleting ad {ad_id}: {str(e)}")
 
-    def search_similar_ads(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
-        """Search for similar job ads based on text query"""
+    def search_similar_ads(self, query: str, top_k: int = 5, city: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Search for similar job ads based on text query with optional city filtering."""
         query_embedding = self.model.encode(query).tolist()
+        
+        # Build the filter dictionary if city is provided
+        metadata_filter = {}
+        if city:
+            city = city.lower().strip()  # Normalize
+            city = city[0].upper() + city[1:]  # Capitalize first letter
+            metadata_filter["city"] = {"$eq": city}
+
+        # Execute the Pinecone query with optional metadata filtering
         results = self.index.query(
             vector=query_embedding,
             top_k=top_k,
-            include_metadata=True
+            include_metadata=True,
+            filter=metadata_filter if metadata_filter else None
         )
         return results.matches
 

@@ -184,12 +184,15 @@ def main():
                 with st.expander("Preview extracted text"):
                     st.text(clean_text[:500] + "..." if len(clean_text) > 500 else clean_text)
                 
+                # Add a city filter textbox above the search button
+                city_filter = st.text_input("Filter by city (optional)", value="", help="Enter a city to filter job results by location")
+
                 # Search button
                 if st.button("Search Jobs"):
                     with st.spinner("Searching for matching jobs..."):
                         try:
                             # Search for similar job ads
-                            results = handler.search_similar_ads(clean_text, top_k=num_results)
+                            results = handler.search_similar_ads(clean_text, top_k=num_results, city=city_filter.strip())
                             
                             if results:
                                 st.subheader("Matching Jobs")
