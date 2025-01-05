@@ -222,7 +222,7 @@ def main():
                                         
                                         # Display initial description preview
                                         formatted_description = format_job_description(
-                                            description[:500] if is_truncated else description,
+                                            description[:2000] if is_truncated else description,
                                             truncated=is_truncated
                                         )
                                         st.markdown(formatted_description)

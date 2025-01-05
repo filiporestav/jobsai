@@ -52,10 +52,7 @@ class PineconeHandler:
             self.index = self.pc.Index(PINECONE_INDEX_NAME)
         
         #self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        #self.model = SentenceTransformer('intfloat/multilingual-e5-large')
         self.model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
-        #512 token max length, embedding dim 768
-        #self.model = SentenceTransformer('sentence-transformers/allenai-specter')
         log.info(f"Initialized connection to Pinecone index '{PINECONE_INDEX_NAME}'")
 
     def _create_embedding(self, ad: Dict[str, Any]) -> List[float]:
