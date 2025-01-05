@@ -45,13 +45,15 @@ class PineconeHandler:
             
             self.pc.create_index(
                 name=PINECONE_INDEX_NAME,
-                dimension=384,
+                dimension=512,
                 metric="cosine",
                 spec=spec
             )
             self.index = self.pc.Index(PINECONE_INDEX_NAME)
         
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        #self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        #512 token max length, embedding dim 768
+        self.model = SentenceTransformer('sentence-transformers/allenai-specter')
         log.info(f"Initialized connection to Pinecone index '{PINECONE_INDEX_NAME}'")
 
     def _create_embedding(self, ad: Dict[str, Any]) -> List[float]:
@@ -91,7 +93,7 @@ class PineconeHandler:
                 'city': (workplace_address.get('municipality', '') or '')[:100],
                 'occupation': (occupation.get('label', '') or '')[:100],
                 'headline': (ad.get('headline', '') or '')[:200],
-                'description': (description.get('text', '') or '')[:1000],
+                'description': (description.get('text', '') or '')[:2000],
                 'logo_url': (ad.get('logo_url', '') or '')[:200],
                 'webpage_url': (ad.get('webpage_url', '') or '')[:200],
                 'published': (ad.get('publication_date', '') or '')[:50]
