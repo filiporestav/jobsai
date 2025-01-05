@@ -4,7 +4,7 @@ This repository is the final project for the course ID2223 Scalable Machine Lear
 
 The final product can be seen by pressing the link below, and is hosted on Streamlit Community Cloud.
 
-[**JobsAI**](https://jobsai.streamlit.app/){:target="\_blank"}
+[**JobsAI**](https://jobsai.streamlit.app/)
 
 ## Short pitch
 
