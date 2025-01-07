@@ -1,64 +1,136 @@
 # AI-Powered Swedish Job Matching Platform
 
-This repository is the final project for the course ID2223 Scalable Machine Learning and Deep Learning at KTH.
+This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
 
-The final product can be seen by pressing the link below, and is hosted on Streamlit Community Cloud.
-
+The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Streamlit Community Cloud and can be accessed here:  
 [**JobsAI**](https://jobsai.streamlit.app/)
 
-## Short pitch
+---
 
-Have you ever wanted to know which jobs that would fit your competences and experiences the best? Look no more, Jobs AI solves this. We use vector embeddings and similarity search to find the job listings with the highest similarity to your resume, so you don't have to browse through the 40,000+ job listings available on Arbetsförmedlingen.
+## Overview
 
-## Problem description
+### Project Pitch
 
-The project aims to develop an AI-powered job matching platform that connects job seekers with suitable openings by analyzing resumes and job descriptions. The prediction problem involves calculating compatibility scores between resumes and job postings to recommend the most relevant positions. Data comes from two sources: (1) publicly available job listings, accessible through the Arbetsförmedlingen API, and (2) resume data, uploaded by the user. The platform solves the inefficiency of manual job searches and mismatched applications by
-leveraging machine learning and natural language processing (NLP).
+Finding the right job can be overwhelming, especially with over 40,000 listings available on Arbetsförmedlingen. **JobsAI** streamlines this process by using **vector embeddings** and **similarity search** to match users’ resumes with the most relevant job postings. Say goodbye to endless scrolling and let AI do the heavy lifting!
 
-## Dataset
+---
 
-The data is retrieved from [Arbetsförmedlingen's (the Swedish Public Employment Service) API](https://jobstream.api.jobtechdev.se/). It gives access to all job listings which are published on their job listings bank, inlcuding real time information regarding changes to these listings such as new publications, deletions or updates or job descriptions.
+## Problem Statement
 
-## Method
+Traditional job search methods often involve manual browsing of job listings, leading to inefficiency and mismatched applications. To address this, we developed an AI-powered job matching platform that:
 
-When building the program, the first thing that we did was to do some analysis of relevant tools for the project. We were thinking about having Hopsworks as the serverless platform which we would upload the job listings data and then fetch the data from. However, since we only needed to store vector embeddings we decided to use a service targeted specifically for that purpose. Some analysis led us into Pinecone, a vector database which is easy to configure and work with, used by several large companies.
+1. **Analyzes resumes and job descriptions** to calculate compatibility scores.
+2. **Recommends the most relevant job postings** based on semantic similarity.
 
-When the vector database tool was choosed, we needed to begin working and analyzing how we could get data from Arbetsförmedlingen's API. Luckily for us, Arbetsförmedlingen has some easy-accesible APIs to work with, that are free. We choosed their JobStream API since it allows us to have an own copy of all listings which are published through Arbetsförmedlingen.
+The platform leverages **Natural Language Processing (NLP)** and machine learning to eliminate the inefficiencies of manual job searches.
 
-## How the code works
+### Data Sources
 
-The code is fairly simple thanks to the tools we have used.
+The platform uses two primary data sources:
 
-### First-time setup code description
+1. **Job Listings**: Retrieved via Arbetsförmedlingen’s [JobStream API](https://jobstream.api.jobtechdev.se/), which provides real-time updates for job postings.
+2. **Resumes**: Uploaded directly by users via the frontend application.
 
-1. The first thing one should do is to run `boostrap.py`. This is done only once (in the beginning) to initialize the Pinecone database and load all ads into it. This program calls the `get_all_ads` method in `get_ads.py`, which in turn calls the snapshot endpoint `https://jobstream.api.jobtechdev.se/snapshot` to get a snapshot of all the job listings up at this current time.
-2. When all ads have been retrieved, we insert it into the Pinecone vector database. This is done through the `upsert_ads` method in `pinecone_handler.py`, which calls `_create_embedding` and `_prepare_metadata` to create embeddings and metadata respectively.
-3. The `_create_embedding` function takes an ad as an input and parses the JSON values for headline, occupation and description keys, and then combines these three into a single text. It then encodes the text with the help of a SentenceTransformer. We chose the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2). It maps sentences and paragraphs to a 384 dimensional dense vector space and is fine-tuned on [nreimers/MiniLM-l&-H384-uncased](https://huggingface.co/nreimers/MiniLM-L6-H384-uncased) to given a sentence from the pair, the model should predict which out of a set of randomly other sentences, was actually paired with it in their dataset. It is intended to be used as a sentence and short paragraph encoder.
-4. The `_prepare_metadata` function extracts metadata from the ad, which is stored together with the vector embedding in the Pinecone vector database. Since some JSON values such as email and municipality were nested, we had to parse them in a nested manner.
-5. When 100 ads (our batch size for insertion) have been vectorized and retrieved metadata from, we upsert all the ads to the Pinecone vector database through the `_batch_upsert` function.
+---
 
-### Daily code description
+## Methodology
 
-We have set up a Github Actions Workflow to run `main.py` each day during midnight. This program calls the `keep_updated.py` function which, as the name suggests, keeps the vector database updated. It retrieves the timestamp of the last update, which is stored in `timestamp2.txt` file. It then uses this timestamp as a HTTP parameter in the request to the API, so that only the changes from this timestamp to the current time is sent as an response from the API.
+### Tool Selection
 
-When the changes of job listings from this timestamp has been retrieved, it calls the `PineconeHandler` to upsert the ads into the vector database, deleting removed ads and inserting new ads.
+- **Vector Database**: After evaluating several options, we chose **Pinecone** for its ease of use and targeted support for vector embeddings.
+- **Embedding Model**: We used [**sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2**](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), a pre-trained transformer model that encodes sentences and paragraphs into a 384-dimensional dense vector space.
+- **Backend Updates**: GitHub Actions was utilized to automate daily updates to the vector database.
 
-### Querying from the vector database
+### Workflow
 
-Querying from the Pinecone vector database is simple and fast thanks to the Pinecone API. When a resume is uploaded on the frontend (Streamlit app), the Streamlit app calls the `search_similar_ads` from the `PineconeHandler`, encoding the resume text with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) SentenceTransformer, as the job listings were encoded with. It then queries the most similar vector embeddings from the Pinecone vector database and returns the `top_k` (default is 5) most similar job listings, along with their metadata. It then displays those jobs to the user, along with their similarity scores.
+1. **Data Retrieval**:
 
-## How to run the code
+   - Job data is fetched via the JobStream API and stored in Pinecone after being vectorized.
+   - Metadata such as job title, description, location, and contact details is extracted.
 
-1. Clone the Github repository to your local machine.
-2. Navigate to the cloned repository folder on your machine in the terminal and run `python -r requirements.txt`
-3. Sign up for an account at [Pinecone](https://www.pinecone.io/) and create an API key.
-4. Save the API key as a Github Actions Secret, with the name `PINECONE_API_KEY`.
-5. Run `python bootstrap.py`. This may take a while since all job listings have to be retrieved from the API and then vectorized and stored in the vector database.
-6. To update the vector database, run `python main.py`. This should preferebly be scheduled using e.g. Github Actions Workflow.
-7. Run `streamlit run app.py` to start the Streamlit app locally, where you can interact with the application using an UI and be able to upload your own resume to find the most relevant jobs for you.
+2. **Similarity Search**:
+   - User-uploaded resumes are vectorized using the same sentence transformer model.
+   - Pinecone is queried for the top-k most similar job embeddings, which are then displayed to the user alongside their similarity scores.
 
-## Potential improvements
+---
 
-1. The [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) truncates input text longer than 256 word pieces. To capture all the semantics from job listings, we probably need a sentence transformer which can embed longer inputs texts.
-2. The [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) is not optimized for multilingual text. Many people in Sweden have their resumes in Swedish, so better performance would probably achieved with a multilingual model.
-3. Users should be able to filter on municipality or location, because the current app ignores where the person wants to work (often not explicitly mentioned in their resume), making many job listings not relevant anyway.
+## Code Architecture
+
+### First-Time Setup
+
+1. Run `bootstrap.py` to:
+   - Retrieve all job listings using the JobStream API’s snapshot endpoint.
+   - Vectorize the listings and insert them into the Pinecone database.
+2. Embeddings and metadata are generated using helper functions:
+   - `_create_embedding`: Combines job title, occupation, and description for encoding into a dense vector.
+   - `_prepare_metadata`: Extracts additional details like email, location, and timestamps for storage alongside embeddings.
+
+### Daily Updates
+
+- **Automated Workflow**: A GitHub Actions workflow runs `main.py` daily at midnight.
+- **Incremental Updates**: The `keep_updated.py` function fetches job listings updated since the last recorded timestamp, ensuring the vector database remains current.
+
+### Querying for Matches
+
+- When a user uploads their resume:
+  - The resume is encoded using the same transformer model.
+  - Pinecone’s similarity search retrieves the top-k most relevant job listings.
+
+---
+
+## How to Run
+
+### Prerequisites
+
+1. Python 3.x installed locally.
+2. A [Pinecone](https://www.pinecone.io/) account and API key.
+3. Arbetsförmedlingen JobStream API access (free).
+
+### Steps
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/filiporestav/jobsai.git
+   cd jobsai
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Add your Pinecone API key as an environment variable:
+   ```bash
+   export PINECONE_API_KEY=<your-api-key>
+   ```
+4. Run the application locally:
+   ```bash
+   streamlit run app.py
+   ```
+5. Open the Streamlit app in your browser to upload resumes and view job recommendations.
+
+## Potential Improvements
+
+### Model Limitation
+
+- The current embedding model truncates text longer than 128 tokens.
+- For longer job descriptions, a model capable of processing more tokens (e.g., 512 or 1024) could improve accuracy.
+
+### Active Learning
+
+- Adding a feedback loop for users to label jobs as "Relevant" or "Not Relevant" could fine-tune the model.
+- Limitations in Streamlit’s reactivity make it unsuitable for collecting real-time feedback.
+- A future iteration could use **React** for a more seamless UI experience.
+
+### Scalability
+
+- Embedding and querying currently run on CPU, which may limit performance for larger datasets.
+- Switching to GPU-based processing would significantly enhance speed.
+
+---
+
+## Conclusion
+
+**JobsAI** is a proof-of-concept platform that demonstrates how AI can revolutionize the job search experience. By leveraging vector embeddings and similarity search, the platform reduces inefficiencies and matches users with the most relevant job postings.
+
+While it is functional and effective as a prototype, there are ample opportunities for enhancement, particularly in scalability, UI design, and model fine-tuning.
+
+For a live demo, visit [**JobsAI**](https://jobsai.streamlit.app/).
