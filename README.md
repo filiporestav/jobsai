@@ -14,7 +14,7 @@ pinned: false
 This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
 
 The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Gradio using HuggingFace Community Cloud and can be accessed here:  
-[**JobsAI**](https://huggingface.co/spaces/forestav/jobsai)
+![**JobsAI**](https://huggingface.co/spaces/forestav/jobsai)
 
 ---
 
