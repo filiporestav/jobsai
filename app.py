@@ -252,10 +252,12 @@ def create_interface():
             
             relevant_btn.click(
                 fn=lambda idx=i: handle_feedback(idx, True),
+                inputs=[],
                 outputs=[feedback_status]
             )
             not_relevant_btn.click(
                 fn=lambda idx=i: handle_feedback(idx, False),
+                inputs=[],
                 outputs=[feedback_status]
             )
 
