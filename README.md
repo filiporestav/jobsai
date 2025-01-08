@@ -3,8 +3,8 @@ title: "JobsAI Space"
 emoji: "🤖"
 colorFrom: "yellow"
 colorTo: "blue"
-sdk: "gradio" # or "streamlit", depending on your app
-sdk_version: "3.0.5" # Specify the correct version of the SDK you're using
+sdk: "gradio"
+sdk_version: "5.10.0"
 app_file: "app.py"
 pinned: false
 ---
@@ -13,7 +13,12 @@ pinned: false
 
 This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
 
-The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on HuggingFace Spaces and can be accessed here:  
+**Creators**:
+
+- [Filip Orestav](https://www.linkedin.com/in/filip-orestav/)
+- [Kolumbus Lindh](https://www.linkedin.com/in/kolumbuslindh/)
+
+The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Hugging Face Spaces and can be accessed here:  
 [**JobsAI**](https://huggingface.co/spaces/forestav/jobsai)
 
 ---
