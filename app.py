@@ -240,10 +240,12 @@ def create_interface():
             not_relevant_btn = container_obj.children[1].children[1]
             
             relevant_btn.click(
+                inputs=[],
                 fn=lambda idx=i: handle_feedback(idx, True),
                 outputs=[feedback_status]
             )
             not_relevant_btn.click(
+                inputs=[],
                 fn=lambda idx=i: handle_feedback(idx, False),
                 outputs=[feedback_status]
             )
@@ -252,4 +254,4 @@ def create_interface():
 
 if __name__ == "__main__":
     interface = create_interface()
-    interface.launch(debug=True)
+    interface.launch()
