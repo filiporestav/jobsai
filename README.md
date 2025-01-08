@@ -1,3 +1,14 @@
+---
+title: "JobsAI Space"
+emoji: "🤖"
+colorFrom: "#00c6ff"
+colorTo: "#0072ff"
+sdk: "gradio" # or "streamlit", depending on your app
+sdk_version: "3.0.5" # Specify the correct version of the SDK you're using
+app_file: "app.py"
+pinned: false
+---
+
 # AI-Powered Swedish Job Matching Platform
 
 This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
