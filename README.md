@@ -1,8 +1,8 @@
 ---
 title: "JobsAI Space"
 emoji: "🤖"
-colorFrom: "#00c6ff"
-colorTo: "#0072ff"
+colorFrom: "yellow"
+colorTo: "blue"
 sdk: "gradio" # or "streamlit", depending on your app
 sdk_version: "3.0.5" # Specify the correct version of the SDK you're using
 app_file: "app.py"
