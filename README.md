@@ -13,7 +13,7 @@ pinned: false
 
 This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
 
-The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Gradio using HuggingFace Community Cloud and can be accessed here:  
+The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on HuggingFace Spaces and can be accessed here:  
 [**JobsAI**](https://huggingface.co/spaces/forestav/jobsai)
 
 ---
@@ -22,7 +22,7 @@ The project culminates in an AI-powered job matching platform, **JobsAI**, desig
 
 ### Project Pitch
 
-Finding the right job can be overwhelming, especially with over 40,000 listings available on Arbetsförmedlingen. **JobsAI** streamlines this process by using **vector embeddings** and **similarity search** to match users’ resumes with the most relevant job postings. Say goodbye to endless scrolling and let AI do the heavy lifting!
+Finding the right job can be overwhelming, especially with over 40,000 listings available on Arbetsförmedlingen as of speaking. **JobsAI** streamlines this process by using **vector embeddings** and **similarity search** to match users’ resumes with the most relevant job postings. Say goodbye to endless scrolling and let AI do the heavy lifting!
 
 ---
 
@@ -49,7 +49,7 @@ The platform uses two primary data sources:
 ### Tool Selection
 
 - **Vector Database**: After evaluating several options, we chose **Pinecone** for its ease of use and targeted support for vector embeddings.
-- **Embedding Model**: The base model is [**sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2**](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), a pre-trained transformer model that encodes sentences and paragraphs into a 384-dimensional dense vector space.
+- **Embedding Model**: The base model is [**sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2**](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), a lightweight pre-trained transformer model that encodes sentences and paragraphs into a 384-dimensional dense vector space.
 - **Finetuned Model**: The base model is finetuned on user-provided data every 7-days, and stored on HuggingFace. It can be found [**here!**](https://huggingface.co/forestav/job_matching_sentence_transformer)
 - **Backend Updates**: GitHub Actions was utilized to automate daily updates to the vector database.
 - **Feature Store**: To store user provided data, we used **Hopsworks** as it allows for easy feature interaction, as well as allows us to save older models to evaluate performance over time.
@@ -57,7 +57,7 @@ The platform uses two primary data sources:
 ### Workflow
 
 1. **Flowchart of JobsAI**
-![JobsAI flowchart structure](https://i.imghippo.com/files/CZk3216mnA.png)
+   ![JobsAI flowchart structure](https://i.imghippo.com/files/CZk3216mnA.png)
 
 2. **Data Retrieval**:
 
@@ -65,14 +65,14 @@ The platform uses two primary data sources:
    - Metadata such as job title, description, location, and contact details is extracted.
 
 3. **Similarity Search**:
+
    - User-uploaded resumes are vectorized using the same sentence transformer model.
    - Pinecone is queried for the top-k most similar job embeddings, which are then displayed to the user alongside their similarity scores.
-  
+
 4. **Feature Uploading**:
-   - If a user chooses to leave feedback, by either clicking *Relevant* or *Not Relevant*, the users CV is uploaded to Hopsworks together with the specific ad data, and the selected          choice.
-     
+   - If a user chooses to leave feedback, by either clicking _Relevant_ or _Not Relevant_, the users CV is uploaded to Hopsworks together with the specific ad data, and the selected choice.
 5. **Model Training**:
-   - Once every seven days, a chrone job on *Github Actions* runs, where the base model is finetuned on the total data stored in the feature store.
+   - Once every seven days, a cron job on _Github Actions_ runs, where the base model is finetuned on the total data stored in the feature store.
 
 ---
 
@@ -80,22 +80,20 @@ The platform uses two primary data sources:
 
 ### First-Time Setup
 
-1. Run `bootstrap.py` to:
+1. If you want to have your own Pinecone vector database, run `bootstrap.py` to:
    - Retrieve all job listings using the JobStream API’s snapshot endpoint.
    - Vectorize the listings and insert them into the Pinecone database.
-2. Embeddings and metadata are generated using helper functions:
-   - `_create_embedding`: Combines job title, occupation, and description for encoding into a dense vector.
-   - `_prepare_metadata`: Extracts additional details like email, location, and timestamps for storage alongside embeddings.
+2. To run the app locally, navigate to the folder and run `python app.py`
 
 ### Daily Updates
 
 - **Automated Workflow**: A GitHub Actions workflow runs `main.py` daily at midnight.
-- **Incremental Updates**: The `keep_updated.py` function fetches job listings updated since the last recorded timestamp, ensuring the vector database remains current.
+- **Incremental Updates**: The `main.py` file is running daily at midnight and fetches job listings updated since the last recorded timestamp, ensuring the vector database remains current.
 
 ### Weekly Updates
 
 - **Automated Workflow**: A GitHub Actions workflow runs `training_pipeline.ipynb` every Sunday at midnight.
-- **Model Training**: Features are downloaded from Hopsworks, and the base LLM is finetuned on the total dataset with both negative and positive examples.
+- **Model Training**: Features are downloaded from Hopsworks, and the base Sentence Transformer is finetuned on the total dataset with both negative and positive examples.
 
 ### Querying for Matches
 
@@ -113,7 +111,7 @@ The platform uses two primary data sources:
 2. A [Pinecone](https://www.pinecone.io/) account and API key.
 3. Arbetsförmedlingen JobStream API access (free).
 4. [Hopsworks](https://www.hopsworks.ai/) Account and API key.
-5. [Huggingface](https://huggingface.co/) Account and API key.
+5. [Huggingface](https://huggingface.co/) Account and API key/Access Token.
 
 ### Steps
 
@@ -134,7 +132,7 @@ The platform uses two primary data sources:
    ```
 4. Run the application locally:
    ```bash
-   gradio run app.py
+   python app.py
    ```
 5. Open the Gradio app in your browser to upload resumes and view job recommendations.
 
