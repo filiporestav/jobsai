@@ -211,6 +211,9 @@ def create_interface():
             pinecone_id = job_containers[container_index]['pinecone_id']
             if pinecone_id:
                 response = matcher.submit_feedback(pinecone_id, is_relevant)
+                # Convert the response to a string if it's a dictionary
+                if isinstance(response, dict):
+                    return str(response)
                 return response
             return "Error: Job ID not found"
         
