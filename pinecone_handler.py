@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 import os
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Optional
+from hopsworks_integration import HopsworksHandler
 
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -32,6 +33,8 @@ class PineconeHandler:
     def __init__(self):
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
         self.BATCH_SIZE = 100  # Number of vectors to upsert at once
+        self.hopsworks_handler = HopsworksHandler()
+
         
         try:
             self.index = self.pc.Index(PINECONE_INDEX_NAME)
@@ -149,6 +152,7 @@ class PineconeHandler:
                 try:
                     vector = self._create_embedding(ad)
                     metadata = self._prepare_metadata(ad)
+                    self.hopsworks_handler.insert_cv_features(ad['id'], vector, metadata)
                     vectors.append((ad_id, vector, metadata))
                     processed += 1
                     

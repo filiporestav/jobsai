@@ -7,6 +7,7 @@ from pinecone_handler import PineconeHandler
 from datetime import datetime
 import sqlite3
 import threading
+from hopsworks_integration import HopsworksHandler
 
 class Database:
     def __init__(self, db_name="feedback.db"):
@@ -19,6 +20,7 @@ class Database:
             self.thread_local.connection = sqlite3.connect(self.db_name)
         return self.thread_local.connection
     
+        
     def _create_tables(self):
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -81,7 +83,27 @@ class JobMatcher:
         self.db = Database()
         self.current_results = []
         self.current_resume_text = None
+        self.hopsworks_handler = HopsworksHandler()
 
+    def submit_feedback(self, pinecone_id, is_relevant):
+        """Modified to log feedback to Hopsworks."""
+        try:
+            job = next((job for job in self.current_results if job['id'] == pinecone_id), None)
+            if not job:
+                return "Error: Job not found"
+
+            metadata = job['metadata']
+            event_id = f"{pinecone_id}_{self.current_resume_text[:5]}"  # Unique identifier
+            self.hopsworks_handler.insert_job_feedback(
+                event_id=event_id,
+                cv_id=self.current_resume_text,
+                job_id=pinecone_id,
+                like_dislike=int(is_relevant)
+            )
+            return f"✓ Feedback saved for '{metadata['headline']}'"
+        except Exception as e:
+            return f"Error saving feedback: {str(e)}"
+        
     def search_jobs(self, file, num_results: int, city: str = "") -> List[Dict]:
         """Search for matching jobs and return results"""
         if not file:
@@ -144,6 +166,8 @@ def create_interface():
     
     with gr.Blocks() as interface:
         gr.Markdown("# AI-Powered Job Search")
+        reload_model_btn = gr.Button("Reload Model")
+        reload_status = gr.Textbox(label="Reload Status", interactive=False)
         
         with gr.Row():
             file_input = gr.File(label="Upload Resume (PDF, DOCX, or TXT)")
@@ -253,7 +277,14 @@ def create_interface():
                 fn=lambda idx=i: handle_feedback(idx, False),
                 outputs=[feedback_status]
             )
-
+        reload_model_btn = gr.Button("Reload Model")
+        reload_status = gr.Textbox(label="Reload Status", interactive=False)
+        
+        def reload_model():
+            matcher.handler.model = SentenceTransformer("my_finetuned_model")
+            return "Model reloaded successfully!"
+        
+        reload_model_btn.click(fn=reload_model, outputs=[reload_status])
     return interface
 
 if __name__ == "__main__":

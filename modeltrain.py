@@ -7,7 +7,21 @@ from sentence_transformers import SentenceTransformer, InputExample, losses
 #   pip install huggingface_hub
 # from huggingface_hub import HfApi, HfFolder
 
+from hopsworks_integration import HopsworksHandler
+
 def main():
+    hopsworks_handler = HopsworksHandler()
+    training_data = hopsworks_handler.get_training_data()
+
+    train_examples = []
+    for row in training_data.itertuples():
+        example = InputExample(
+            texts=[row.cv_text, row.liked_job_text, row.disliked_job_text]
+        )
+        train_examples.append(example)
+
+    # Rest of the training pipeline...
+
     #--------------------------------------------------------------------------
     # 1. (Optional) Setup your Hugging Face auth
     #--------------------------------------------------------------------------
