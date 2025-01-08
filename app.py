@@ -4,9 +4,6 @@ import docx2txt
 from typing import Optional, List, Dict
 import re
 from pinecone_handler import PineconeHandler
-from datetime import datetime
-import sqlite3
-import threading
 import hopsworks
 import pandas as pd
 import os
@@ -166,10 +163,21 @@ def create_interface():
         def update_job_displays(file, num_results, city):
             results = matcher.search_jobs(file, num_results, city)
             
-            if "error" in results[0]:
-                return ([gr.update(visible=False)] * 20) + [results[0]["error"]]
-            
+            # Initialize updates list with default values for all containers
             updates = []
+            
+            if "error" in results[0]:
+                # If there's an error, hide all containers and show error message
+                for _ in range(20):
+                    updates.extend([
+                        gr.update(visible=False),  # Container visibility
+                        "",                        # Job content
+                        ""                         # Feedback status
+                    ])
+                updates.append(results[0]["error"])  # Status message
+                return updates
+            
+            # Process results and generate updates
             for i in range(20):
                 if i < len(results):
                     job = results[i]
@@ -198,22 +206,22 @@ def create_interface():
                         ""                        # Reset feedback status
                     ])
                 else:
+                    # For unused containers, hide them and clear content
                     updates.extend([
-                        gr.update(visible=False),
-                        "",
-                        ""
+                        gr.update(visible=False),  # Container visibility
+                        "",                        # Job content
+                        ""                         # Reset feedback status
                     ])
             
+            # Add final status message
             updates.append("Jobs found! Rate them as relevant or not relevant.")
+            
             return updates
         
         def handle_feedback(container_index: int, is_relevant: bool):
             pinecone_id = job_containers[container_index]['pinecone_id']
             if pinecone_id:
                 response = matcher.submit_feedback(pinecone_id, is_relevant)
-                # Convert the response to a string if it's a dictionary
-                if isinstance(response, dict):
-                    return str(response)
                 return response
             return "Error: Job ID not found"
         
@@ -243,12 +251,10 @@ def create_interface():
             not_relevant_btn = container_obj.children[1].children[1]
             
             relevant_btn.click(
-                inputs=[],
                 fn=lambda idx=i: handle_feedback(idx, True),
                 outputs=[feedback_status]
             )
             not_relevant_btn.click(
-                inputs=[],
                 fn=lambda idx=i: handle_feedback(idx, False),
                 outputs=[feedback_status]
             )
@@ -257,4 +263,4 @@ def create_interface():
 
 if __name__ == "__main__":
     interface = create_interface()
-    interface.launch()
+    interface.launch(debug=True)
