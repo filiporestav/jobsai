@@ -72,6 +72,8 @@ jobs:
           python training_pipeline.py
 
       - name: Run bootstrap script
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python bootstrap.py
 
       - name: Commit and push changes
