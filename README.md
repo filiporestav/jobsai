@@ -57,7 +57,7 @@ The platform uses two primary data sources:
 ### Workflow
 
 1. **Flowchart of JobsAI**
-[JobsAI flowchart structure](https://www.imghippo.com/i/CZk3216mnA.png)
+![JobsAI flowchart structure](https://i.imghippo.com/files/CZk3216mnA.png)
 
 2. **Data Retrieval**:
 
