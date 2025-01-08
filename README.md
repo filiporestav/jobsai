@@ -13,8 +13,8 @@ pinned: false
 
 This repository contains the final project for the course **ID2223 Scalable Machine Learning and Deep Learning** at KTH.
 
-The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Streamlit Community Cloud and can be accessed here:  
-[**JobsAI**](https://jobsai.streamlit.app/)
+The project culminates in an AI-powered job matching platform, **JobsAI**, designed to help users find job listings tailored to their resumes. The application is hosted on Gradio using HuggingFace Community Cloud and can be accessed here:  
+[**JobsAI**](https://huggingface.co/spaces/forestav/jobsai)
 
 ---
 
@@ -49,8 +49,10 @@ The platform uses two primary data sources:
 ### Tool Selection
 
 - **Vector Database**: After evaluating several options, we chose **Pinecone** for its ease of use and targeted support for vector embeddings.
-- **Embedding Model**: We used [**sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2**](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), a pre-trained transformer model that encodes sentences and paragraphs into a 384-dimensional dense vector space.
+- **Embedding Model**: The base model is [**sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2**](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), a pre-trained transformer model that encodes sentences and paragraphs into a 384-dimensional dense vector space.
+- **Finetuned Model**: The base model is finetuned on user-provided data every 7-days, and stored on HuggingFace. It can be found [**here!**](https://huggingface.co/forestav/job_matching_sentence_transformer)
 - **Backend Updates**: GitHub Actions was utilized to automate daily updates to the vector database.
+- **Feature Store**: To store user provided data, we used **Hopsworks** as it allows for easy feature interaction, as well as allows us to save older models to evaluate performance over time.
 
 ### Workflow
 
@@ -62,6 +64,12 @@ The platform uses two primary data sources:
 2. **Similarity Search**:
    - User-uploaded resumes are vectorized using the same sentence transformer model.
    - Pinecone is queried for the top-k most similar job embeddings, which are then displayed to the user alongside their similarity scores.
+  
+3. **Feature Uploading**:
+   - If a user chooses to leave feedback, by either clicking *Relevant* or *Not Relevant*, the users CV is uploaded to Hopsworks together with the specific ad data, and the selected          choice.
+     
+4. **Model Training**:
+   - Once every seven days, a chrone job on *Github Actions* runs, where the base model is finetuned on the total data stored in the feature store.
 
 ---
 
@@ -81,6 +89,11 @@ The platform uses two primary data sources:
 - **Automated Workflow**: A GitHub Actions workflow runs `main.py` daily at midnight.
 - **Incremental Updates**: The `keep_updated.py` function fetches job listings updated since the last recorded timestamp, ensuring the vector database remains current.
 
+### Weekly Updates
+
+- **Automated Workflow**: A GitHub Actions workflow runs `training_pipeline.ipynb` every Sunday at midnight.
+- **Model Training**: Features are downloaded from Hopsworks, and the base LLM is finetuned on the total dataset with both negative and positive examples.
+
 ### Querying for Matches
 
 - When a user uploads their resume:
@@ -96,6 +109,8 @@ The platform uses two primary data sources:
 1. Python 3.x installed locally.
 2. A [Pinecone](https://www.pinecone.io/) account and API key.
 3. Arbetsförmedlingen JobStream API access (free).
+4. [Hopsworks](https://www.hopsworks.ai/) Account and API key.
+5. [Huggingface](https://huggingface.co/) Account and API key.
 
 ### Steps
 
@@ -108,15 +123,17 @@ The platform uses two primary data sources:
    ```bash
    pip install -r requirements.txt
    ```
-3. Add your Pinecone API key as an environment variable:
+3. Add your API keys as an environment variables:
    ```bash
    export PINECONE_API_KEY=<your-api-key>
+   export HOPSWORKS_API_KEY=<your-api-key>
+   export HUGGINGFACE_API_KEY=<your-api-key>
    ```
 4. Run the application locally:
    ```bash
-   streamlit run app.py
+   gradio run app.py
    ```
-5. Open the Streamlit app in your browser to upload resumes and view job recommendations.
+5. Open the Gradio app in your browser to upload resumes and view job recommendations.
 
 ## Potential Improvements
 
@@ -124,12 +141,6 @@ The platform uses two primary data sources:
 
 - The current embedding model truncates text longer than 128 tokens.
 - For longer job descriptions, a model capable of processing more tokens (e.g., 512 or 1024) could improve accuracy.
-
-### Active Learning
-
-- Adding a feedback loop for users to label jobs as "Relevant" or "Not Relevant" could fine-tune the model.
-- Limitations in Streamlit’s reactivity make it unsuitable for collecting real-time feedback.
-- A future iteration could use **React** for a more seamless UI experience.
 
 ### Scalability
 
@@ -142,6 +153,6 @@ The platform uses two primary data sources:
 
 **JobsAI** is a proof-of-concept platform that demonstrates how AI can revolutionize the job search experience. By leveraging vector embeddings and similarity search, the platform reduces inefficiencies and matches users with the most relevant job postings.
 
-While it is functional and effective as a prototype, there are ample opportunities for enhancement, particularly in scalability, UI design, and model fine-tuning.
+While it is functional and effective as a prototype, there are ample opportunities for enhancement, particularly in scalability and model capacity.
 
 For a live demo, visit [**JobsAI**](https://jobsai.streamlit.app/).
