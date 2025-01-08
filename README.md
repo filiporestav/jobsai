@@ -111,7 +111,7 @@ The platform uses two primary data sources:
 2. A [Pinecone](https://www.pinecone.io/) account and API key.
 3. Arbetsförmedlingen JobStream API access (free).
 4. [Hopsworks](https://www.hopsworks.ai/) Account and API key.
-5. [Huggingface](https://huggingface.co/) Account and API key/Access Token.
+5. Optional: [Huggingface](https://huggingface.co/) Account and API key/Access Token.
 
 ### Steps
 
