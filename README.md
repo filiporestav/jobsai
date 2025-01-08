@@ -157,5 +157,3 @@ The platform uses two primary data sources:
 **JobsAI** is a proof-of-concept platform that demonstrates how AI can revolutionize the job search experience. By leveraging vector embeddings and similarity search, the platform reduces inefficiencies and matches users with the most relevant job postings.
 
 While it is functional and effective as a prototype, there are ample opportunities for enhancement, particularly in scalability and model capacity.
-
-For a live demo, visit [**JobsAI**](https://jobsai.streamlit.app/).
