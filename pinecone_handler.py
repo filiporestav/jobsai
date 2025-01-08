@@ -199,6 +199,29 @@ class PineconeHandler:
             filter=metadata_filter if metadata_filter else None
         )
         return results.matches
+    
+    def recreate_index(self) -> None:
+        """Recreate the Pinecone index"""
+        try:
+            self.pc.delete_index(PINECONE_INDEX_NAME)
+            log.info(f"Deleted index '{PINECONE_INDEX_NAME}'")
+
+            log.info(f"Creating new index '{PINECONE_INDEX_NAME}'")
+            spec = ServerlessSpec(
+                cloud="aws",
+                region="us-east-1"
+            )
+            
+            self.pc.create_index(
+                name=PINECONE_INDEX_NAME,
+                dimension=384,
+                metric="cosine",
+                spec=spec
+            )
+            self.index = self.pc.Index(PINECONE_INDEX_NAME)
+            log.info(f"Connected to new index '{PINECONE_INDEX_NAME}'")
+        except Exception as e:
+            log.error(f"Error deleting index: {str(e)}")
 
 def load_all(all_ads):
     handler = PineconeHandler()

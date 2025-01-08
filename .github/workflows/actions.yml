@@ -1,15 +1,15 @@
 name: Update Job Database
-
 on:
   schedule:
-    - cron: "0 0 * * *" # Runs once a day at midnight
+    - cron: "0 0 * * *" # Daily at midnight (main.py)
+    - cron: "0 0 * * 0" # Weekly on Sunday at midnight (training_pipeline.ipynb)
   workflow_dispatch: # Allows manual triggering
 
 permissions:
   contents: write
 
 jobs:
-  update-database:
+  daily-update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,7 +32,7 @@ jobs:
         with:
           timezoneLinux: "Europe/Stockholm"
 
-      - name: Run update script
+      - name: Run daily update script
         env:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python main.py
@@ -43,3 +43,40 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add timestamp2.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update timestamp" && git push)
+
+  weekly-training:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * 0' # Only run on weekly schedule
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install nbconvert jupyter
+
+      - name: Run training pipeline
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+        run: |
+          jupyter nbconvert --to python training_pipeline.ipynb
+          python training_pipeline.py
+
+      - name: Run bootstrap script
+        run: python bootstrap.py
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Weekly training update" && git push)

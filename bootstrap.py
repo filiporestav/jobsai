@@ -16,6 +16,7 @@ if __name__ == '__main__':
     """
     # Initialize Pinecone handler
     handler = PineconeHandler()
+    handler.recreate_index()
     log.info('Pinecone connection initialized')
 
     if PLACES or OCCUPATIONS:
