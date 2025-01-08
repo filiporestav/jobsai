@@ -56,19 +56,22 @@ The platform uses two primary data sources:
 
 ### Workflow
 
-1. **Data Retrieval**:
+1. **Flowchart of JobsAI**
+[JobsAI flowchart structure](https://www.imghippo.com/i/CZk3216mnA.png)
+
+2. **Data Retrieval**:
 
    - Job data is fetched via the JobStream API and stored in Pinecone after being vectorized.
    - Metadata such as job title, description, location, and contact details is extracted.
 
-2. **Similarity Search**:
+3. **Similarity Search**:
    - User-uploaded resumes are vectorized using the same sentence transformer model.
    - Pinecone is queried for the top-k most similar job embeddings, which are then displayed to the user alongside their similarity scores.
   
-3. **Feature Uploading**:
+4. **Feature Uploading**:
    - If a user chooses to leave feedback, by either clicking *Relevant* or *Not Relevant*, the users CV is uploaded to Hopsworks together with the specific ad data, and the selected          choice.
      
-4. **Model Training**:
+5. **Model Training**:
    - Once every seven days, a chrone job on *Github Actions* runs, where the base model is finetuned on the total data stored in the feature store.
 
 ---
