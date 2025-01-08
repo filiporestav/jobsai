@@ -214,7 +214,7 @@ def create_interface():
                     ])
             
             # Add final status message
-            updates.append("Jobs found! Rate them as relevant or not relevant.")
+            updates.append("Jobs found! If you decide to help us by rating them as relevant or not relevant, your CV will be uploaded to our servers and used for improving the service. ")
             
             return updates
         
