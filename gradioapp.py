@@ -7,50 +7,43 @@ from pinecone_handler import PineconeHandler
 from datetime import datetime
 import sqlite3
 import threading
+import hopsworks
+import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Database:
-    def __init__(self, db_name="feedback.db"):
-        self.db_name = db_name
-        self.thread_local = threading.local()
-        self._create_tables()
-        
-    def get_connection(self):
-        if not hasattr(self.thread_local, "connection"):
-            self.thread_local.connection = sqlite3.connect(self.db_name)
-        return self.thread_local.connection
-    
-    def _create_tables(self):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            job_id TEXT,
-            resume_text TEXT,
-            job_headline TEXT,
-            job_occupation TEXT,
-            job_description TEXT,
-            is_relevant BOOLEAN,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    def __init__(self):
+        # Initialize Hopsworks
+        project = "orestavf"
+        api_key = os.getenv("HOPSWORKS_API_KEY")
+        self.project = hopsworks.login(project=project, api_key_value=api_key)
+        self.fs = self.project.get_feature_store()
+        self.feedback_fg = self.fs.get_or_create_feature_group(
+            name="job_feedback",
+            version=1,
+            primary_key=["job_id"],
+            description="Feature group for storing user feedback on job matches.",
+            online_enabled=True
         )
-        ''')
-        conn.commit()
-        conn.close()
-        
-    def save_feedback(self, job_id: str, resume_text: str, headline: str, 
-                     occupation: str, description: str, is_relevant: bool):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute('''
-            INSERT INTO feedback 
-            (job_id, resume_text, job_headline, job_occupation, job_description, is_relevant)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ''', (job_id, resume_text, headline, occupation, description, is_relevant))
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            raise e
+
+    def save_feedback(self, job_id: str, resume_text: str, headline: str,
+                    occupation: str, description: str, is_relevant: bool):
+        # Prepare feedback data as a pandas DataFrame
+        feedback_data = pd.DataFrame([{
+            "job_id": job_id,
+            "resume_text": resume_text,
+            "job_headline": headline,
+            "job_occupation": occupation,
+            "job_description": description,
+            "is_relevant": is_relevant,
+            #"timestamp": datetime.now()
+        }])
+
+        self.feedback_fg.insert(feedback_data)
+        print(f"Feedback saved to Hopsworks for job ID: {job_id}")
 
 def extract_text(file) -> Optional[str]:
     """Extract text from uploaded resume file"""
@@ -121,12 +114,12 @@ class JobMatcher:
         try:
             # Find the job in current results by Pinecone ID
             job = next((job for job in self.current_results if job['id'] == pinecone_id), None)
-            
+
             if not job:
                 return "Error: Job not found"
-            
+
             metadata = job['metadata']
-            
+
             self.db.save_feedback(
                 job_id=pinecone_id,  # Use Pinecone's ID
                 resume_text=self.current_resume_text,
@@ -135,9 +128,10 @@ class JobMatcher:
                 description=metadata['description'],
                 is_relevant=is_relevant
             )
-            return f"✓ Feedback saved for '{metadata['headline']}'"
+            return f"\u2713 Feedback saved for '{metadata['headline']}'"
         except Exception as e:
             return f"Error saving feedback: {str(e)}"
+
 
 def create_interface():
     matcher = JobMatcher()
@@ -258,4 +252,4 @@ def create_interface():
 
 if __name__ == "__main__":
     interface = create_interface()
-    interface.launch()
+    interface.launch(debug=True)
