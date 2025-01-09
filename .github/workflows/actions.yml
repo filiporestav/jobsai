@@ -44,7 +44,7 @@ jobs:
           git add timestamp2.txt
           git diff --quiet && git diff --staged --quiet || git commit -m "Update timestamp"
           git fetch origin main
-          git rebase origin/main
+          git pull --rebase rebase origin main
           git push origin main
 
       - name: Push changes to Hugging Face Spaces
@@ -94,8 +94,9 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "Weekly training update"
-          git pull --rebase origin main
-          git push
+          git fetch origin main
+          git pull --rebase rebase origin main
+          git push origin main
 
       - name: Push changes to Hugging Face Spaces
         if: success()
