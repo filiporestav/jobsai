@@ -49,7 +49,8 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add hf https://huggingface.co/spaces/forestav/jobsai
+          git remote remove hf || true
+          git remote add hf https://${HF_TOKEN}@huggingface.co/spaces/forestav/jobsai
           git push hf main --force
 
   weekly-training:
@@ -96,5 +97,6 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add hf https://huggingface.co/spaces/forestav/jobsai
+          git remote remove hf || true
+          git remote add hf https://${HF_TOKEN}@huggingface.co/spaces/forestav/jobsai
           git push hf main --force
