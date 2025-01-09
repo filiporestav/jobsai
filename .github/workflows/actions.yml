@@ -41,11 +41,13 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add timestamp2.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update timestamp"
-          git fetch origin main
-          git pull --rebase rebase origin main
-          git push origin main
+          git add .
+          git diff --quiet && git diff --staged --quiet || (
+            git fetch origin main
+            git pull origin main --rebase
+            git commit -m "Update timestamp"
+            git push origin main
+          )
 
       - name: Push changes to Hugging Face Spaces
         if: success()
@@ -93,10 +95,12 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git diff --quiet && git diff --staged --quiet || git commit -m "Weekly training update"
-          git fetch origin main
-          git pull --rebase rebase origin main
-          git push origin main
+          git diff --quiet && git diff --staged --quiet || (
+            git fetch origin main
+            git pull origin main --rebase
+            git commit -m "Update timestamp"
+            git push origin main
+          )
 
       - name: Push changes to Hugging Face Spaces
         if: success()
