@@ -37,12 +37,20 @@ jobs:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python main.py
 
-      - name: Commit and push if timestamp changed
+      - name: Commit and push to GitHub if timestamp changed
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add timestamp2.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update timestamp" && git push)
+
+      - name: Push changes to Hugging Face Spaces
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://huggingface.co/spaces/forestav/jobsai
+          git push hf main --force
 
   weekly-training:
     runs-on: ubuntu-latest
@@ -76,9 +84,17 @@ jobs:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python bootstrap.py
 
-      - name: Commit and push changes
+      - name: Commit and push changes to GitHub
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
           git diff --quiet && git diff --staged --quiet || (git commit -m "Weekly training update" && git push)
+
+      - name: Push changes to Hugging Face Spaces
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://huggingface.co/spaces/forestav/jobsai
+          git push hf main --force
