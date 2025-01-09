@@ -37,18 +37,14 @@ jobs:
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: python main.py
 
-      - name: Commit changes
+      - name: Update and push changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add timestamp2.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update timestamp"
-
-      - name: Push to GitHub
-        run: |
           git fetch origin main
-          git pull origin main --rebase
-          git push origin main
+          git reset --hard origin/main
+          git add timestamp2.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update timestamp" && git push origin main)
 
       - name: Push to Hugging Face Space
         if: success()
@@ -94,6 +90,8 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          git fetch origin main
+          git reset --hard origin/main
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "Weekly training update"
 
