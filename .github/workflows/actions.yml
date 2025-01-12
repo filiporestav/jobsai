@@ -11,9 +11,6 @@ permissions:
 jobs:
   daily-update:
     runs-on: ubuntu-latest
-    if:
-      !github.event.inputs.weekly_only # Skip if manually triggering for weekly
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -58,7 +55,7 @@ jobs:
 
   weekly-training:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 0 * * 0' || github.event.inputs.weekly_only == 'true' # Run weekly or when triggered manually with input
+    if: github.event.schedule == '0 0 * * 0' # Only run on weekly schedule
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
