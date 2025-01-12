@@ -76,6 +76,7 @@ jobs:
 
       - name: Run training pipeline
         env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
         run: |
           jupyter nbconvert --to python training_pipeline.ipynb
