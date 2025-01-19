@@ -100,11 +100,3 @@ jobs:
           git fetch origin main
           git pull origin main --rebase
           git push origin main
-
-      - name: Push to Hugging Face Space
-        if: success()
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          git remote add hf https://user:${HF_TOKEN}@huggingface.co/spaces/forestav/jobsai
-          git push hf main:main --force
